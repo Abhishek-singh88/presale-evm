@@ -123,6 +123,32 @@ export default function Home() {
     }
   };
 
+  const nextPhase = async () => {
+    if (!contract) {
+      alert('Contract not connected');
+      return;
+    }
+
+    if (currentPhase === '5') {
+      alert('Already at final phase');
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const tx = await contract.nextPhase();
+      await tx.wait();
+      alert('Phase updated successfully!');
+      await loadContractData(contract, account);
+    } catch (error: any) {
+      console.error('Error updating phase:', error);
+      alert('Failed to update phase: ' + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
   const disconnectWallet = () => {
     setAccount('');
     setContract(null);
@@ -164,6 +190,23 @@ export default function Home() {
         )}
 
         {account && (
+          <div className="border border-gray-300 p-4 mb-6">
+            <h2 className="text-lg font-semibold text-gray-700 mb-4">Phase Control</h2>
+            <button
+              onClick={nextPhase}
+              disabled={loading || currentPhase === '5'}
+              className={`px-4 py-2 text-white font-medium ${loading || currentPhase === '5'
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : 'bg-gray-800 hover:bg-gray-700'
+                }`}
+            >
+              {loading ? 'Updating...' : `Next Phase (Current: ${currentPhase}/5)`}
+            </button>
+          </div>
+        )}
+
+
+        {account && (
           <div className="border border-gray-300 p-4">
             <h2 className="text-lg font-semibold text-gray-700 mb-4">Buy Tokens</h2>
             <div className="mb-4">
@@ -181,18 +224,6 @@ export default function Home() {
               className={`w-full px-4 py-3 text-white font-medium ${loading || !tokenAmount || parseFloat(tokenAmount) <= 0 ? 'bg-gray-400 cursor-not-allowed' : 'bg-gray-800 hover:bg-gray-700'}`}>
               {loading ? 'Purchasing...' : 'Buy Tokens'}
             </button>
-          </div>
-        )}
-
-        {!account && (
-          <div className="border border-gray-300 p-4 bg-gray-50">
-            <h3 className="text-gray-700 font-semibold mb-2">Instructions:</h3>
-            <ul className="text-gray-600 text-sm space-y-1">
-              <li>• Install MetaMask browser extension</li>
-              <li>• Connect to localhost:8545 network</li>
-              <li>• Import test account from Hardhat node</li>
-              <li>• Click "Connect Wallet" to start</li>
-            </ul>
           </div>
         )}
       </div>
