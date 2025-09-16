@@ -23,7 +23,6 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [totalSold, setTotalSold] = useState('0');
 
-  // Fallback provider to Hardhat node
   const fallbackProvider = new ethers.JsonRpcProvider('http://127.0.0.1:8545');
 
   const loadContractData = async (contractInstance: ethers.Contract, userAccount: string) => {
@@ -54,7 +53,6 @@ export default function Home() {
         const network = await provider.getNetwork();
 
         if (network.chainId !== 31337) {
-          // Switch to Hardhat network
           await window.ethereum.request({
             method: 'wallet_switchEthereumChain',
             params: [{ chainId: '0x7a69' }],
@@ -65,7 +63,6 @@ export default function Home() {
         signer = await provider.getSigner();
         setAccount(accounts[0]);
       } else {
-        // Fallback signer
         signer = fallbackProvider.getSigner(0);
         const addr = await signer.getAddress();
         setAccount(addr);
@@ -82,7 +79,6 @@ export default function Home() {
     }
   };
 
-  // Calculate required ETH
   useEffect(() => {
     const calculateETH = async () => {
       if (contract && tokenAmount && parseFloat(tokenAmount) > 0) {
